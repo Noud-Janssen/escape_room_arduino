@@ -8,7 +8,7 @@ namespace utils
     {
     }
 
-    void timer::start(uint32_t milliseconds = 0)
+    void timer::start(uint32_t milliseconds)
     {
         if (milliseconds != 0)
         {

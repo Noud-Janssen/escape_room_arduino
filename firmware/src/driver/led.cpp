@@ -5,25 +5,26 @@ namespace driver
     led::led(uint8_t pin)
         : m_pin(pin)
     {
+        pinMode(pin, OUTPUT); // sets the digital pin 13 as output
     }
 
     void led::on()
     {
-        digitalWrite(m_pin,1);
+        digitalWrite(m_pin, HIGH);
     }
 
     void led::off()
     {
-        digitalWrite(m_pin,0);
+        digitalWrite(m_pin, LOW);
     }
 
     void led::toggle()
     {
-        digitalWrite(m_pin,!read());
+        digitalWrite(m_pin, !read());
     }
 
     bool led::read()
     {
-        digitalRead(m_pin);
+        return digitalRead(m_pin);
     }
 } // namespace driver
