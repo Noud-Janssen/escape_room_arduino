@@ -4,7 +4,7 @@
 namespace driver
 {
     rfid::rfid()
-        : mfrc522(9, 10)
+        : mfrc522(10, 3)
     {
     }
 

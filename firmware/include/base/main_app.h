@@ -15,6 +15,7 @@ namespace base
     public:
         void init();
         void loop();
+        void draw();
     private:
         driver::led m_led;
         utils::timer m_timer;

@@ -19,10 +19,11 @@ namespace base
 
     void main_app::loop()
     {
-        if (m_timer.is_triggered())
-        {
-            Serial.println("Timer_triggered");
-            Serial.println(millis());
-        }
+        
+    }
+
+    void main_app::draw()
+    {
+
     }
 } // namespace base

@@ -13,7 +13,7 @@ public:
         mfrc522.PCD_Init();
     }
 
-    bool loop()
+    bool read()
     {
         if (!mfrc522.PICC_IsNewCardPresent())
         {
@@ -29,7 +29,6 @@ public:
         for (byte i = 0; i < uid->size; i++)
         {
             id[i] = uid->uidByte[i];
-            uid->uidByte[i] = 10;
         }
         return true;
     }
