@@ -1,3 +1,4 @@
+
 #include <Arduino.h>
 #include <Wire.h>
 #include <LiquidCrystal.h>
@@ -5,6 +6,15 @@
 #include "RFIDReader.h"
 #include "driver/led.h"
 #include "utils/timer.h"
+#include "utils/combination.h"
+
+RFIDReader rfidReader(10, 19);
+driver::led succes_led(2);
+LiquidCrystal lcd(8, 3, 4, 5, 6, 7);
+combination puzzle_comb;
+
+int current_id = 0;  // The ID that is currently being checked against
+int previous_id = 0; // The ID that was previously checked against
 
 enum card_types
 {
@@ -17,23 +27,7 @@ enum card_types
     PHONE_NOET = 8
 };
 
-RFIDReader rfidReader(10, 19);
-driver::led succes_led(2);
-LiquidCrystal lcd(8, 3, 4, 5, 6, 7);
-
-int time = 60;
-bool card = false;
-bool new_card;
-bool on = false;
-
-// LED led(LED_PIN);
-void draw();
-
-int id = -1;
-int previous_id = 0;
-
-String output;
-
+// Define the custom character for the LCD
 byte square_char[8] = {
     0b00100,
     0b00100,
@@ -51,62 +45,69 @@ void setup()
     while (!Serial)
         ;
     rfidReader.begin();
+
     Serial.println("Init done");
     lcd.begin(16, 2);
     lcd.createChar(0, square_char);
 }
 
-void loop()
-{
-    time = 60 - millis() / 1000;
-
-    card = rfidReader.read();
-    if (card)
-    {
-        previous_id = id;
-        id = rfidReader.get_id(0);
-        if (id == C1 && !on)
-        {
-            on = true;
-        }
-    }
-    draw();
-}
-
-void draw()
+void printCard()
 {
     lcd.clear();
     lcd.setCursor(0, 0);
-    switch (id)
+    switch (current_id)
     {
     case C1:
-        lcd.print("On");
+        lcd.print("Control Rods");
         break;
     case C2:
-        lcd.print("Krypton");
+        lcd.print("Neutron Control");
         break;
     case C3:
-        lcd.print("Barium");
+        lcd.print("Uranium Fuel");
         break;
     case C4:
-        lcd.print("Copper");
+        lcd.print("Neutron Flux");
         break;
     case C5:
-        lcd.print("Carbon");
+        lcd.print("Heat Transfer");
         break;
     case C6:
-        lcd.print("Hydrogen");
+        lcd.print("Power Gen");
         break;
     case PHONE_NOET:
         lcd.print("Telefoon noet");
         break;
     default:
-        lcd.print("ERROR [");
-        lcd.print(id);
-        lcd.print("]");
+        lcd.print("Insert Material");
         lcd.setCursor(0, 1);
-        lcd.print("ID not found");
         break;
     }
     lcd.setCursor(0, 1);
+}
+
+void loop()
+{
+    if (rfidReader.read())
+    {
+        previous_id = current_id;
+        current_id = rfidReader.get_id(0);
+
+        // If the card ID has changed, update the last card read time
+        if (current_id != previous_id)
+        {
+            Serial.write(current_id);
+            puzzle_comb.add(current_id);
+            printCard();
+            if (puzzle_comb.is_correct())
+            {
+                Serial.write("Correct Combination");
+                lcd.clear();
+                lcd.setCursor(0,0);
+                lcd.write("Success!");
+                lcd.setCursor(0,1);
+                lcd.write("1234");
+            }
+        }
+    }
 }
